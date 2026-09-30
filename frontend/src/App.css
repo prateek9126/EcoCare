@@ -1,0 +1,48 @@
+/* CSS resets handled in index.css */
+
+/* Responsive 2-column report layout */
+@media (max-width: 1024px) {
+  .report-two-column-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .report-soh-diagnostic-subgrid {
+    grid-template-columns: 1fr !important;
+  }
+}
+ 
+/* Responsive Contact Us section layout */
+.contact-us-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1.3fr;
+  width: 100%;
+  min-height: 580px;
+  border-top: 1px solid var(--border-color);
+}
+.contact-us-image-side {
+  background-image: url("/ev_charging_side.jpg");
+  background-size: cover;
+  background-position: center;
+}
+@media (max-width: 900px) {
+  .contact-us-layout {
+    grid-template-columns: 1fr;
+  }
+  .contact-us-image-side {
+    min-height: 350px;
+  }
+}
+
+/* Responsive About the Platform card layout */
+.about-platform-card {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+  gap: 3rem;
+}
+@media (max-width: 900px) {
+  .about-platform-card {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem !important;
+  }
+}
