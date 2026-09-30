@@ -10,8 +10,6 @@ import com.example.evbatteryhealth.repository.OtpVerificationRepository;
 import com.example.evbatteryhealth.repository.BatteryAnalysisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -25,19 +23,16 @@ public class PassportLinkController {
     private final PassportLinkRepository passportLinkRepository;
     private final OtpVerificationRepository otpRepository;
     private final BatteryAnalysisRepository batteryAnalysisRepository;
-    private final JavaMailSender mailSender;
 
     @Autowired
     public PassportLinkController(UserRepository userRepository,
                                   PassportLinkRepository passportLinkRepository,
                                   OtpVerificationRepository otpRepository,
-                                  BatteryAnalysisRepository batteryAnalysisRepository,
-                                  JavaMailSender mailSender) {
+                                  BatteryAnalysisRepository batteryAnalysisRepository) {
         this.userRepository = userRepository;
         this.passportLinkRepository = passportLinkRepository;
         this.otpRepository = otpRepository;
         this.batteryAnalysisRepository = batteryAnalysisRepository;
-        this.mailSender = mailSender;
     }
 
     @PostMapping
@@ -108,20 +103,13 @@ public class PassportLinkController {
         otpVerification.setExpiryTime(expiryTime);
         otpRepository.save(otpVerification);
 
-        // Send Email using Gmail SMTP config
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("prateek2222kumar@gmail.com");
-            message.setTo(gmail);
-            message.setSubject("Battery Passport Authorization Code");
-            message.setText("Dear User,\n\nA buyer or user has requested to view your shared EV Battery Digital Passport. Your 6-digit verification code is: " + otp + "\n\nThis OTP is valid for 5 minutes. Share this OTP with the buyer only if you authorize them to view your battery passport.\n\nBest regards,\nEV Diagnostics Terminal Team");
-            mailSender.send(message);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "Failed to send OTP via SMTP: " + e.getMessage()));
-        }
+        System.out.println(">>> [PASSPORT OTP] Authorization OTP code for " + gmail + ": " + otp);
 
-        return ResponseEntity.ok(Map.of("success", true, "message", "OTP sent successfully to the seller's registered email."));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "OTP generated successfully. (Authorization code: " + otp + ")",
+            "otp", otp
+        ));
     }
 
     @PostMapping("/verify")

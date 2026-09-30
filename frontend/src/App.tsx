@@ -443,7 +443,7 @@ export default function App() {
   }, []);
 
   // Company Dashboard States
-  const [companyTab, setCompanyTab] = useState<'dashboard' | 'models' | 'sales' | 'health' | 'service' | 'problems' | 'comparison' | 'insights'>('dashboard');
+  const [companyTab, setCompanyTab] = useState<'dashboard' | 'models' | 'sales' | 'health' | 'service' | 'problems' | 'comparison'>('dashboard');
   const [companySummary, setCompanySummary] = useState<any>(null);
   const [companySales, setCompanySales] = useState<any[]>([]);
   const [companyModelSales, setCompanyModelSales] = useState<any>(null);

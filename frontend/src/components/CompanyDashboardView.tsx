@@ -2,9 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import {
   Activity,
   Battery,
-  Info,
   TrendingUp,
-  CheckCircle,
   AlertTriangle,
   FileText,
   X,
@@ -57,8 +55,8 @@ import {
 interface CompanyDashboardProps {
   user: any;
   setView: (v: 'main' | 'report' | 'passport' | 'secondlife' | 'company') => void;
-  companyTab: 'dashboard' | 'models' | 'sales' | 'health' | 'service' | 'problems' | 'comparison' | 'insights';
-  setCompanyTab: (t: 'dashboard' | 'models' | 'sales' | 'health' | 'service' | 'problems' | 'comparison' | 'insights') => void;
+  companyTab: 'dashboard' | 'models' | 'sales' | 'health' | 'service' | 'problems' | 'comparison';
+  setCompanyTab: (t: 'dashboard' | 'models' | 'sales' | 'health' | 'service' | 'problems' | 'comparison') => void;
   companySummary: any;
   companySales: any[];
   companyModelSales: any;
@@ -72,7 +70,7 @@ interface CompanyDashboardProps {
   selectedCompanyProblem: any;
   setSelectedCompanyProblem: (p: any) => void;
   companyProblemMatrix: any;
-  companyInsights: any[];
+  companyInsights?: any[];
   compModel1: string;
   setCompModel1: (m: string) => void;
   compModel2: string;
@@ -109,7 +107,6 @@ export default function CompanyDashboardView({
   selectedCompanyProblem,
   setSelectedCompanyProblem,
   companyProblemMatrix,
-  companyInsights,
   compModel1,
   setCompModel1,
   compModel2,
@@ -319,7 +316,6 @@ export default function CompanyDashboardView({
           <SidebarLink active={companyTab === 'service' && !selectedShowroom} onClick={() => { setSelectedShowroom(null); setCompanyTab('service'); }} icon={<Wrench size={18} />} text="Service Analytics" open={sidebarOpen} />
           <SidebarLink active={companyTab === 'problems' && !selectedShowroom} onClick={() => { setSelectedShowroom(null); setCompanyTab('problems'); }} icon={<AlertTriangle size={18} />} text="Customer Problems" open={sidebarOpen} />
           <SidebarLink active={companyTab === 'comparison' && !selectedShowroom} onClick={() => { setSelectedShowroom(null); setCompanyTab('comparison'); }} icon={<Layers size={18} />} text="Model Comparison" open={sidebarOpen} />
-          <SidebarLink active={companyTab === 'insights' && !selectedShowroom} onClick={() => { setSelectedShowroom(null); setCompanyTab('insights'); }} icon={<FileText size={18} />} text="Engineering Insights" open={sidebarOpen} />
 
           {selectedShowroom && (
             <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
@@ -360,7 +356,6 @@ export default function CompanyDashboardView({
                   {companyTab === 'service' && 'Service Center Logs & Lifecycle Journey'}
                   {companyTab === 'problems' && 'Customer Problem Diagnostics'}
                   {companyTab === 'comparison' && 'Model Telemetry Comparison'}
-                  {companyTab === 'insights' && 'Data-Driven Engineering Recommendations'}
                 </>
               )}
             </h1>
@@ -571,75 +566,40 @@ export default function CompanyDashboardView({
 
             </div>
 
-            {/* Battery Health overview and service cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.25fr', gap: '1.5rem' }}>
-              
-              {/* Engineering Insights preview card */}
-              <div className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>Engineering Insights Summary</h3>
-                  <button onClick={() => setCompanyTab('insights')} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}>View All →</button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {companyInsights?.slice(0, 3).map((insight: any, idx: number) => (
-                    <div key={idx} style={{
-                      padding: '0.75rem',
-                      borderRadius: '8px',
-                      fontSize: '0.82rem',
-                      display: 'flex',
-                      gap: '0.5rem',
-                      alignItems: 'flex-start',
-                      background: insight.type === 'WARNING' ? 'var(--color-danger-light)' : (insight.type === 'SUCCESS' ? 'var(--color-success-light)' : 'var(--bg-secondary)'),
-                      color: insight.type === 'WARNING' ? 'var(--color-danger)' : (insight.type === 'SUCCESS' ? 'var(--color-success-hover)' : 'var(--text-primary)'),
-                      border: `1px solid ${insight.type === 'WARNING' ? 'rgba(220, 38, 38, 0.1)' : (insight.type === 'SUCCESS' ? 'rgba(16, 185, 129, 0.1)' : 'var(--border-color)')}`
-                    }}>
-                      <Info size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-                      <span>{insight.text}</span>
-                    </div>
-                  ))}
-                  {companyInsights?.length === 0 && (
-                    <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', padding: '1rem' }}>No engineering recommendations compiled.</div>
-                  )}
-                </div>
+            {/* Service Center Diagnostics overview card */}
+            <div className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>Service Center Diagnostics</h3>
+                <button onClick={() => setCompanyTab('service')} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}>Service Journey →</button>
               </div>
 
-              {/* Service center overview preview */}
-              <div className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>Service Center Diagnostics</h3>
-                  <button onClick={() => setCompanyTab('service')} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}>Service Journey →</button>
-                </div>
-
-                {companyServiceSummary ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.85rem' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>Most Serviced Model:</span>
-                        <div style={{ fontWeight: 800, fontSize: '1rem', marginTop: '0.15rem' }}>{companyServiceSummary.mostServicedModel}</div>
-                      </div>
-                      <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>Most Common Service Problem:</span>
-                        <div style={{ fontWeight: 800, fontSize: '1rem', marginTop: '0.15rem', color: 'var(--color-danger)' }}>{companyServiceSummary.mostCommonProblem}</div>
-                      </div>
+              {companyServiceSummary ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Most Serviced Model:</span>
+                      <div style={{ fontWeight: 800, fontSize: '1rem', marginTop: '0.15rem' }}>{companyServiceSummary.mostServicedModel}</div>
                     </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>Average Repair Time:</span>
-                        <div style={{ fontWeight: 800, fontSize: '1rem', marginTop: '0.15rem' }}>{companyServiceSummary.avgRepairTime} hours</div>
-                      </div>
-                      <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>Repeat Service Rate:</span>
-                        <div style={{ fontWeight: 800, fontSize: '1rem', marginTop: '0.15rem', color: companyServiceSummary.repeatServiceRate > 15 ? 'var(--color-danger)' : 'var(--text-primary)' }}>{companyServiceSummary.repeatServiceRate}%</div>
-                      </div>
+                    <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Most Common Service Problem:</span>
+                      <div style={{ fontWeight: 800, fontSize: '1rem', marginTop: '0.15rem', color: 'var(--color-danger)' }}>{companyServiceSummary.mostCommonProblem}</div>
                     </div>
                   </div>
-                ) : (
-                  <EmptyState text="No service logs available." />
-                )}
-              </div>
 
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Average Repair Time:</span>
+                      <div style={{ fontWeight: 800, fontSize: '1rem', marginTop: '0.15rem' }}>{companyServiceSummary.avgRepairTime} hours</div>
+                    </div>
+                    <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Repeat Service Rate:</span>
+                      <div style={{ fontWeight: 800, fontSize: '1rem', marginTop: '0.15rem', color: companyServiceSummary.repeatServiceRate > 15 ? 'var(--color-danger)' : 'var(--text-primary)' }}>{companyServiceSummary.repeatServiceRate}%</div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <EmptyState text="No service logs available." />
+              )}
             </div>
 
           </div>
@@ -1353,42 +1313,6 @@ export default function CompanyDashboardView({
           </div>
         )}
 
-        {/* 8. ENGINEERING INSIGHTS (TAB: insights) */}
-        {companyTab === 'insights' && (
-          <div className="card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Engineering & Design Insights</h3>
-            
-            {companyInsights?.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {companyInsights.map((insight, idx) => (
-                  <div key={idx} className="card" style={{
-                    padding: '1.25rem',
-                    borderLeft: `4px solid ${insight.type === 'WARNING' ? 'var(--color-danger)' : (insight.type === 'SUCCESS' ? 'var(--color-success)' : 'var(--color-secondary)')}`,
-                    background: insight.type === 'WARNING' ? 'var(--color-danger-light)' : (insight.type === 'SUCCESS' ? 'var(--color-success-light)' : 'var(--color-secondary-light)'),
-                    animation: 'fade-in 0.3s ease-out'
-                  }}>
-                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                      {insight.type === 'WARNING' ? <AlertTriangle size={20} className="text-danger" style={{ flexShrink: 0, marginTop: '2px' }} /> : 
-                       insight.type === 'SUCCESS' ? <CheckCircle size={20} className="text-success" style={{ flexShrink: 0, marginTop: '2px' }} /> : 
-                       <Info size={20} style={{ color: 'var(--color-secondary)', flexShrink: 0, marginTop: '2px' }} />}
-                      
-                      <div style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
-                        <strong style={{ display: 'block', fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>
-                          {insight.type === 'WARNING' && 'High Risk Fault Alert'}
-                          {insight.type === 'SUCCESS' && 'Design Target Achievement'}
-                          {insight.type === 'INFO' && 'Fleet Telemetry Trend'}
-                        </strong>
-                        {insight.text}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState text="Insufficient data to generate design insights. Proceeding calibrations." />
-            )}
-          </div>
-        )}
           </>
         )}
 

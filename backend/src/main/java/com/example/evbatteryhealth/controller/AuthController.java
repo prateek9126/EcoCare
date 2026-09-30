@@ -7,8 +7,6 @@ import com.example.evbatteryhealth.repository.OtpVerificationRepository;
 import com.example.evbatteryhealth.util.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -22,15 +20,12 @@ public class AuthController {
 
     private final UserRepository userRepository;
     private final OtpVerificationRepository otpRepository;
-    private final JavaMailSender mailSender;
 
     @Autowired
     public AuthController(UserRepository userRepository, 
-                          OtpVerificationRepository otpRepository, 
-                          JavaMailSender mailSender) {
+                          OtpVerificationRepository otpRepository) {
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
-        this.mailSender = mailSender;
     }
 
     @PostMapping("/send-otp")
@@ -58,20 +53,13 @@ public class AuthController {
         otpVerification.setExpiryTime(expiryTime);
         otpRepository.save(otpVerification);
 
-        // Send Email
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("prateek2222kumar@gmail.com");
-            message.setTo(gmail);
-            message.setSubject("Diagnostics Terminal Verification Code");
-            message.setText("Dear User,\n\nYour 6-digit verification code for registration is: " + otp + "\n\nThis OTP is valid for 5 minutes. If you did not request this code, please ignore this email.\n\nBest regards,\nEV Diagnostics Terminal Team");
-            mailSender.send(message);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "Failed to send OTP via email: " + e.getMessage()));
-        }
+        System.out.println(">>> [AUTH OTP] Verification code for " + gmail + ": " + otp);
 
-        return ResponseEntity.ok(Map.of("success", true, "message", "6-digit OTP code sent successfully to " + gmail));
+        return ResponseEntity.ok(Map.of(
+            "success", true, 
+            "message", "Verification code generated: " + otp,
+            "otp", otp
+        ));
     }
 
     @PostMapping("/register")
