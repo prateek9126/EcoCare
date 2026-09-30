@@ -56,12 +56,10 @@ graph TD
     Vite["React 19 + TypeScript (Vite @ Port 5175)"]
     API["Spring Boot 3 REST API (@ Port 8080)"]
     DB[("PostgreSQL Database")]
-    Mail["SMTP Server (Gmail Mail Sender)"]
     
     Client -->|Interacts| Vite
     Vite -->|REST API Requests / CORS| API
     API -->|Hibernate / JPA| DB
-    API -->|Sends OTPs| Mail
 ```
 
 ### Frontend
@@ -76,7 +74,7 @@ graph TD
 - **Framework**: [Spring Boot 3.3.2](https://spring.io/projects/spring-boot) (Java 21)
 - **Data & Persistence**: Spring Data JPA, Hibernate ORM
 - **Service Discovery**: Spring Cloud Netflix Eureka Client ready
-- **Security & Mail**: BCrypt password hashing, Spring Boot Starter Mail (SMTP)
+- **Security**: BCrypt password hashing, OTP verification
 - **Database**: [PostgreSQL](https://www.postgresql.org/)
 
 ---
@@ -181,7 +179,7 @@ Ensure you have installed:
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/auth/send-otp` | Sends a 6-digit registration OTP via email |
+| `POST` | `/api/auth/send-otp` | Generates and issues a 6-digit registration verification OTP |
 | `POST` | `/api/auth/register` | Registers a new user with verified OTP |
 | `POST` | `/api/auth/login` | Authenticates user and returns session role |
 | `POST` | `/api/battery/analyze` | Evaluates and records live battery telemetry |
