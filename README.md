@@ -46,11 +46,6 @@ From individual EV owners monitoring pack degradation to OEM fleet managers anal
 - **Complaint & Service Workflow**: Ticket management system with diagnostic report attachments and status progression.
 - **Showroom Vehicle Inventory**: Real-time tracking of showroom demo units, specs, and status.
 
-### 🔐 6. Secure Authentication & Role Management
-- **Email OTP Verification**: 6-digit one-time password verification via Spring Mail SMTP.
-- **Role-Based Access Control (RBAC)**: Tailored workflows for EV Owners, Technicians, and OEM Administrators.
-- **BCrypt Encryption**: Secure credential storage and session handling.
-
 ---
 
 ## 🛠️ Architecture & Tech Stack
