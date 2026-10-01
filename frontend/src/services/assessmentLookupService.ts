@@ -1,4 +1,5 @@
 import { getSalesCityDataset } from './salesCityData';
+import { BACKEND_URL } from '../config/api';
 
 export interface UnifiedBatteryAssessment {
   id: string | number;
@@ -144,7 +145,7 @@ export async function fetchVehicleAssessmentsForComplaint(
   // 1. Try Backend API for company vehicle details
   if (cleanVin) {
     try {
-      const res = await fetch(`http://localhost:8080/api/company/vehicles/${encodeURIComponent(cleanVin)}`, {
+      const res = await fetch(`${BACKEND_URL}/api/company/vehicles/${encodeURIComponent(cleanVin)}`, {
         headers: { 'X-User-Email': 'admin' }
       });
       if (res.ok) {

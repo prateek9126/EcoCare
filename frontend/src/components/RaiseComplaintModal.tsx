@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { 
   X, 
   AlertTriangle, 
@@ -70,7 +71,7 @@ export const RaiseComplaintModal: React.FC<RaiseComplaintModalProps> = ({
 
     try {
       // 1. Send to Backend API
-      const res = await fetch('http://localhost:8080/api/battery/complaint', {
+      const res = await fetch(`${BACKEND_URL}/api/battery/complaint`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +82,7 @@ export const RaiseComplaintModal: React.FC<RaiseComplaintModalProps> = ({
 
       if (!res.ok) {
         // Also attempt company service endpoint as fallback
-        await fetch('http://localhost:8080/api/company/service/complaints', {
+        await fetch(`${BACKEND_URL}/api/company/service/complaints`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

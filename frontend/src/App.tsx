@@ -45,6 +45,7 @@ import CompanyDashboardView from './components/CompanyDashboardView';
 import { RaiseComplaintModal } from './components/RaiseComplaintModal';
 import L from 'leaflet';
 import { useRef } from 'react';
+import { BACKEND_URL, API_BASE_URL } from './config/api';
 
 interface BatteryAnalysis {
   id?: number;
@@ -99,8 +100,6 @@ const CITIES = [
 ];
 
 
-
-const API_BASE_URL = 'http://localhost:8080/api/battery';
 
 export default function App() {
   // Scroll & Active Section States
@@ -164,7 +163,7 @@ export default function App() {
       }
       const dbId = parts[1];
 
-      const response = await fetch(`http://localhost:8080/api/battery/public/assessment/${dbId}`);
+      const response = await fetch(`${BACKEND_URL}/api/battery/public/assessment/${dbId}`);
       if (response.ok) {
         const data = await response.json();
         setQrReportData(data.assessment);
@@ -252,7 +251,7 @@ export default function App() {
       if (vehicleTypeFilter) params.append('vehicleType', vehicleTypeFilter);
       if (chemistryFilter) params.append('chemistry', chemistryFilter);
       
-      const response = await fetch(`http://localhost:8080/api/marketplace/listings?${params.toString()}`);
+      const response = await fetch(`${BACKEND_URL}/api/marketplace/listings?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
         
@@ -290,7 +289,7 @@ export default function App() {
         status: 'AVAILABLE'
       };
       
-      const response = await fetch('http://localhost:8080/api/marketplace/listings', {
+      const response = await fetch(`${BACKEND_URL}/api/marketplace/listings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -405,7 +404,7 @@ export default function App() {
 
   const fetchMyVehicles = async (email: string) => {
     try {
-      const response = await fetch('http://localhost:8080/api/battery/vehicles', {
+      const response = await fetch(`${BACKEND_URL}/api/battery/vehicles`, {
         headers: {
           'X-User-Email': email
         }
@@ -539,27 +538,27 @@ export default function App() {
       const headers = { ...getHeaders() };
       
       // Fetch summary
-      const summaryRes = await fetch('http://localhost:8080/api/company/dashboard/summary', { headers });
+      const summaryRes = await fetch(`${BACKEND_URL}/api/company/dashboard/summary`, { headers });
       if (summaryRes.ok) setCompanySummary(await summaryRes.json());
       
       // Fetch sales rankings
-      const salesRankRes = await fetch('http://localhost:8080/api/company/sales/models', { headers });
+      const salesRankRes = await fetch(`${BACKEND_URL}/api/company/sales/models`, { headers });
       if (salesRankRes.ok) setCompanyModelSales(await salesRankRes.json());
 
       // Fetch models list
-      const modelsRes = await fetch('http://localhost:8080/api/company/models', { headers });
+      const modelsRes = await fetch(`${BACKEND_URL}/api/company/models`, { headers });
       if (modelsRes.ok) setCompanyModelsList(await modelsRes.json());
 
       // Fetch battery health
-      const healthRes = await fetch('http://localhost:8080/api/company/battery-health', { headers });
+      const healthRes = await fetch(`${BACKEND_URL}/api/company/battery-health`, { headers });
       if (healthRes.ok) setCompanyBatteryHealth(await healthRes.json());
 
       // Fetch service insights
-      const serviceRes = await fetch('http://localhost:8080/api/company/service/summary', { headers });
+      const serviceRes = await fetch(`${BACKEND_URL}/api/company/service/summary`, { headers });
       if (serviceRes.ok) setCompanyServiceSummary(await serviceRes.json());
 
       // Fetch problems list
-      const problemsRes = await fetch('http://localhost:8080/api/company/service/problems', { headers });
+      const problemsRes = await fetch(`${BACKEND_URL}/api/company/service/problems`, { headers });
       if (problemsRes.ok) {
         const probs = await problemsRes.json();
         setCompanyProblems(probs);
@@ -567,11 +566,11 @@ export default function App() {
       }
 
       // Fetch problem matrix
-      const matrixRes = await fetch('http://localhost:8080/api/company/service/problems/by-model', { headers });
+      const matrixRes = await fetch(`${BACKEND_URL}/api/company/service/problems/by-model`, { headers });
       if (matrixRes.ok) setCompanyProblemMatrix(await matrixRes.json());
 
       // Fetch engineering insights
-      const insightsRes = await fetch('http://localhost:8080/api/company/insights', { headers });
+      const insightsRes = await fetch(`${BACKEND_URL}/api/company/insights`, { headers });
       if (insightsRes.ok) setCompanyInsights(await insightsRes.json());
 
     } catch (err) {
@@ -589,7 +588,7 @@ export default function App() {
       params.append('range', salesRangeFilter);
       if (salesModelFilter) params.append('model', salesModelFilter);
       
-      const res = await fetch(`http://localhost:8080/api/company/sales/monthly?${params.toString()}`, { headers });
+      const res = await fetch(`${BACKEND_URL}/api/company/sales/monthly?${params.toString()}`, { headers });
       if (res.ok) setCompanySales(await res.json());
     } catch (err) {
       console.error(err);
@@ -599,7 +598,7 @@ export default function App() {
   const fetchCompanyModelDetail = async (modelName: string) => {
     try {
       const headers = { ...getHeaders() };
-      const res = await fetch(`http://localhost:8080/api/company/models/${modelName}`, { headers });
+      const res = await fetch(`${BACKEND_URL}/api/company/models/${modelName}`, { headers });
       if (res.ok) setCompanyModelDetail(await res.json());
     } catch (err) {
       console.error(err);
@@ -609,7 +608,7 @@ export default function App() {
   const fetchCompanyComparison = async (m1: string, m2: string) => {
     try {
       const headers = { ...getHeaders() };
-      const res = await fetch(`http://localhost:8080/api/company/models/compare?model1=${m1}&model2=${m2}`, { headers });
+      const res = await fetch(`${BACKEND_URL}/api/company/models/compare?model1=${m1}&model2=${m2}`, { headers });
       if (res.ok) setCompanyComparisonData(await res.json());
     } catch (err) {
       console.error(err);
@@ -622,7 +621,7 @@ export default function App() {
     setSearchedVehicleDetail(null);
     try {
       const headers = { ...getHeaders() };
-      const res = await fetch(`http://localhost:8080/api/company/vehicles/${vid.trim()}`, { headers });
+      const res = await fetch(`${BACKEND_URL}/api/company/vehicles/${vid.trim()}`, { headers });
       if (res.ok) {
         setSearchedVehicleDetail(await res.json());
       } else {
@@ -676,7 +675,7 @@ export default function App() {
     setError('');
     setSuccessMsg('');
     try {
-      const response = await fetch('http://localhost:8080/api/auth/send-otp', {
+      const response = await fetch(`${BACKEND_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gmail: registerEmail.trim() }),
@@ -690,7 +689,7 @@ export default function App() {
         setError(data.message || 'Failed to send OTP.');
       }
     } catch (err) {
-      setError('Could not connect to server to send OTP. Make sure Spring Boot is running.');
+      setError('Could not connect to server to send OTP.');
     } finally {
       setLoading(false);
     }
@@ -710,7 +709,7 @@ export default function App() {
     setError('');
     setSuccessMsg('');
     try {
-      const response = await fetch('http://localhost:8080/api/auth/register', {
+      const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1090,7 +1089,7 @@ export default function App() {
         setError(`Analysis failed: ${errMsg || response.statusText}`);
       }
     } catch (err) {
-      setError('Failed to connect to the backend server. Verify Spring Boot is running on port 8080.');
+      setError('Failed to connect to the backend server.');
     } finally {
       setLoading(false);
     }
@@ -1154,7 +1153,7 @@ export default function App() {
     setSelectedStation(null);
 
     try {
-      const response = await fetch(`http://localhost:8080/api/charging-stations/nearby?latitude=${userLat}&longitude=${userLng}&radius=${searchRadius}`);
+      const response = await fetch(`${BACKEND_URL}/api/charging-stations/nearby?latitude=${userLat}&longitude=${userLng}&radius=${searchRadius}`);
       if (response.ok) {
         const data = await response.json();
         setNearbyStations(data);
@@ -1169,7 +1168,7 @@ export default function App() {
         setChargingSearchError(`Backend Error: ${text || response.statusText}`);
       }
     } catch (err) {
-      setChargingSearchError('Failed to connect to backend server. Make sure Spring Boot is running on port 8080.');
+      setChargingSearchError('Failed to connect to backend server.');
     } finally {
       setChargingSearchLoading(false);
     }
@@ -1272,7 +1271,7 @@ export default function App() {
   // Fetch EV list for dropdown
   const fetchEvList = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/evs');
+      const response = await fetch(`${BACKEND_URL}/api/evs`);
       if (response.ok) {
         const data = await response.json();
         setAllEvsList(data);
@@ -1300,7 +1299,7 @@ export default function App() {
     setSelectedRecIndexForDealers(null);
 
     try {
-      const response = await fetch('http://localhost:8080/api/evs/recommend', {
+      const response = await fetch(`${BACKEND_URL}/api/evs/recommend`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1325,7 +1324,7 @@ export default function App() {
         setRecSearchError(`Backend Error: ${text || response.statusText}`);
       }
     } catch (err) {
-      setRecSearchError('Failed to connect to backend server. Make sure Spring Boot is running on port 8080.');
+      setRecSearchError('Failed to connect to backend server.');
     } finally {
       setRecSearchLoading(false);
     }
@@ -1354,7 +1353,7 @@ export default function App() {
       if (recBudget) params.append('budget', recBudget.toString());
       if (recCity) params.append('city', recCity);
 
-      const response = await fetch(`http://localhost:8080/api/evs/compare?${params.toString()}`);
+      const response = await fetch(`${BACKEND_URL}/api/evs/compare?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
         setComparisonResult(data);
@@ -1363,7 +1362,7 @@ export default function App() {
         setCompSearchError(`Comparison Error: ${text || response.statusText}`);
       }
     } catch (err) {
-      setCompSearchError('Failed to connect to backend. Make sure Spring Boot is running on port 8080.');
+      setCompSearchError('Failed to connect to backend.');
     } finally {
       setCompSearchLoading(false);
     }
@@ -1392,7 +1391,7 @@ export default function App() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gmail: loginEmail, password: loginPassword }),
@@ -1855,7 +1854,8 @@ export default function App() {
     if (result.fastChargingPercentage > 60) chargingPattern = 'DC Fast Intensive';
     else if (result.fastChargingPercentage < 20) chargingPattern = 'Slow AC Dominant';
 
-    const qrData = encodeURIComponent(`http://localhost:5175/?reportId=${reportId}`);
+    const reportOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5175';
+    const qrData = encodeURIComponent(`${reportOrigin}/?reportId=${reportId}`);
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${qrData}`;
 
     const sortedHistory = [...qrReportHistory].sort((a, b) => new Date(a.createdAt || '').getTime() - new Date(b.createdAt || '').getTime());
@@ -4910,7 +4910,8 @@ export default function App() {
           if (result.fastChargingPercentage > 60) chargingPattern = 'DC Fast Intensive';
           else if (result.fastChargingPercentage < 20) chargingPattern = 'Slow AC Dominant';
 
-          const qrData = encodeURIComponent(`http://localhost:5175/?reportId=${reportId}`);
+          const reportOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5175';
+          const qrData = encodeURIComponent(`${reportOrigin}/?reportId=${reportId}`);
           const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${qrData}`;
 
           const sortedHistory = [...vehicleHistory].sort((a, b) => new Date(a.createdAt || '').getTime() - new Date(b.createdAt || '').getTime());
