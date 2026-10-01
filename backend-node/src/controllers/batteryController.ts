@@ -6,6 +6,13 @@ export class BatteryController {
   async analyzeBattery(req: Request, res: Response) {
     try {
       const userEmail = (req.headers['x-user-email'] as string) || undefined;
+      const validation = batteryService.validateAnalysisInput(req.body);
+      if (!validation.valid) {
+        return res.status(400).json({
+          message: `Validation failed: ${validation.errors.join('; ')}`,
+          errors: validation.errors
+        });
+      }
       const result = await batteryService.analyzeAndSave(req.body, userEmail);
       return res.json(result);
     } catch (err: any) {

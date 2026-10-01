@@ -5,7 +5,7 @@ dotenv.config();
 
 const { Pool } = pg;
 
-function getDatabaseConfig() {
+function getDatabaseConfig(): pg.PoolConfig {
   const connectionString =
     process.env.DATABASE_URL ||
     process.env.POSTGRES_URL ||
@@ -20,6 +20,12 @@ function getDatabaseConfig() {
   const isLocal =
     connectionString.includes('localhost') ||
     connectionString.includes('127.0.0.1');
+
+  if (process.env.NODE_ENV === 'production' && isLocal) {
+    throw new Error(
+      'Production database configuration error: DATABASE_URL must not point to localhost or 127.0.0.1.'
+    );
+  }
 
   return {
     connectionString,
@@ -45,6 +51,9 @@ pool.on('error', (err) => {
   );
 });
 
-export async function query(text, params) {
-  return pool.query(text, params);
+export async function query<T extends pg.QueryResultRow = any>(
+  text: string,
+  params?: any[]
+): Promise<pg.QueryResult<T>> {
+  return pool.query<T>(text, params);
 }

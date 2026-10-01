@@ -131,8 +131,175 @@ function generateExplanation(
   return parts.join('');
 }
 
+export interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
 export class BatteryAnalysisService {
+  validateAnalysisInput(input: any): ValidationResult {
+    const errors: string[] = [];
+
+    if (!input || typeof input !== 'object' || Array.isArray(input)) {
+      return {
+        valid: false,
+        errors: ['Request body must be a valid JSON object']
+      };
+    }
+
+    const isNullOrEmpty = (v: any) =>
+      v === undefined || v === null || (typeof v === 'string' && v.trim() === '');
+
+    // 1. Manufacturer
+    if (isNullOrEmpty(input.manufacturer)) {
+      errors.push('Manufacturer is required');
+    } else if (typeof input.manufacturer !== 'string' || input.manufacturer.trim().length === 0) {
+      errors.push('Manufacturer must be a non-empty string');
+    }
+
+    // 2. Model
+    if (isNullOrEmpty(input.model)) {
+      errors.push('Model is required');
+    } else if (typeof input.model !== 'string' || input.model.trim().length === 0) {
+      errors.push('Model must be a non-empty string');
+    }
+
+    // 3. Battery Age
+    const batteryAge = input.batteryAge ?? input.battery_age;
+    if (isNullOrEmpty(batteryAge)) {
+      errors.push('Battery age is required');
+    } else {
+      const age = Number(batteryAge);
+      if (!Number.isFinite(age) || age < 0) {
+        errors.push('Battery age must be a positive number');
+      }
+    }
+
+    // 4. Odometer
+    const odometer = input.odometer;
+    if (isNullOrEmpty(odometer)) {
+      errors.push('Odometer is required');
+    } else {
+      const odo = Number(odometer);
+      if (!Number.isFinite(odo) || odo < 0) {
+        errors.push('Odometer must be a positive number');
+      }
+    }
+
+    // 5. Original Capacity
+    const origCap = input.originalCapacity ?? input.original_capacity;
+    let validOrigCap: number | null = null;
+    if (isNullOrEmpty(origCap)) {
+      errors.push('Original capacity is required');
+    } else {
+      const cap = Number(origCap);
+      if (!Number.isFinite(cap) || cap <= 0) {
+        errors.push('Original capacity must be positive');
+      } else {
+        validOrigCap = cap;
+      }
+    }
+
+    // 6. Current Usable Capacity
+    const usableCap = input.currentUsableCapacity ?? input.current_usable_capacity;
+    let validUsableCap: number | null = null;
+    if (isNullOrEmpty(usableCap)) {
+      errors.push('Current usable capacity is required');
+    } else {
+      const cap = Number(usableCap);
+      if (!Number.isFinite(cap) || cap <= 0) {
+        errors.push('Current usable capacity must be positive');
+      } else {
+        validUsableCap = cap;
+      }
+    }
+
+    if (validOrigCap !== null && validUsableCap !== null && validUsableCap > validOrigCap) {
+      errors.push('Current usable capacity cannot exceed original capacity');
+    }
+
+    // 7. Current Battery Percentage
+    const currentBatteryPercentage = input.currentBatteryPercentage ?? input.current_battery_percentage;
+    if (isNullOrEmpty(currentBatteryPercentage)) {
+      errors.push('Current battery % is required');
+    } else {
+      const pct = Number(currentBatteryPercentage);
+      if (!Number.isFinite(pct) || pct < 0 || pct > 100) {
+        errors.push('Current battery % must be between 0 and 100');
+      }
+    }
+
+    // 8. Charging Cycles
+    const chargingCycles = input.chargingCycles ?? input.charging_cycles;
+    if (isNullOrEmpty(chargingCycles)) {
+      errors.push('Charging cycles is required');
+    } else {
+      const cycles = Number(chargingCycles);
+      if (!Number.isFinite(cycles) || cycles < 0) {
+        errors.push('Charging cycles must be positive');
+      }
+    }
+
+    // 9. Average Temperature
+    const avgTemp = input.averageTemperature ?? input.average_temperature;
+    if (isNullOrEmpty(avgTemp)) {
+      errors.push('Average temperature is required');
+    } else {
+      const temp = Number(avgTemp);
+      if (!Number.isFinite(temp)) {
+        errors.push('Average temperature must be a valid number');
+      }
+    }
+
+    // 10. Average Range
+    const avgRange = input.averageRange ?? input.average_range;
+    if (isNullOrEmpty(avgRange)) {
+      errors.push('Average range is required');
+    } else {
+      const range = Number(avgRange);
+      if (!Number.isFinite(range) || range < 0) {
+        errors.push('Average range must be positive');
+      }
+    }
+
+    // 11. Normal Charging Percentage
+    const normChg = input.normalChargingPercentage ?? input.normal_charging_percentage;
+    if (isNullOrEmpty(normChg)) {
+      errors.push('Normal charging % is required');
+    } else {
+      const norm = Number(normChg);
+      if (!Number.isFinite(norm) || norm < 0 || norm > 100) {
+        errors.push('Normal charging % must be between 0 and 100');
+      }
+    }
+
+    // 12. Fast Charging Percentage
+    const fastChg = input.fastChargingPercentage ?? input.fast_charging_percentage;
+    if (isNullOrEmpty(fastChg)) {
+      errors.push('Fast charging % is required');
+    } else {
+      const fast = Number(fastChg);
+      if (!Number.isFinite(fast) || fast < 0 || fast > 100) {
+        errors.push('Fast charging % must be between 0 and 100');
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
   async analyzeAndSave(input: Record<string, any>, userEmail?: string): Promise<BatteryAnalysis> {
+    const safeNum = (val: any, fallback: number = 0): number => {
+      const n = Number(val);
+      return Number.isFinite(n) ? n : fallback;
+    };
+    const safeInt = (val: any, fallback: number = 0): number => {
+      const n = parseInt(String(val), 10);
+      return Number.isFinite(n) ? n : fallback;
+    };
+
     // 0. Resolve user
     let user: User | null = null;
     if (userEmail && userEmail.trim().length > 0 && userEmail.trim().toLowerCase() !== 'admin') {
@@ -165,19 +332,19 @@ export class BatteryAnalysisService {
         );
         if (prevRes.rows.length > 0) {
           const latestPrev = prevRes.rows[prevRes.rows.length - 1];
-          const curCap = Number(input.currentUsableCapacity ?? input.current_usable_capacity);
-          const origCap = Number(input.originalCapacity ?? input.original_capacity);
-          const curOdo = Number(input.odometer);
-          const curCycles = Number(input.chargingCycles ?? input.charging_cycles);
-          const curRange = Number(input.averageRange ?? input.average_range);
-          const curAge = Number(input.batteryAge ?? input.battery_age);
+          const curCap = safeNum(input.currentUsableCapacity ?? input.current_usable_capacity, 0);
+          const origCap = safeNum(input.originalCapacity ?? input.original_capacity, 1);
+          const curOdo = safeNum(input.odometer, 0);
+          const curCycles = safeInt(input.chargingCycles ?? input.charging_cycles, 0);
+          const curRange = safeNum(input.averageRange ?? input.average_range, 0);
+          const curAge = safeNum(input.batteryAge ?? input.battery_age, 0);
 
-          input.usable_capacity_change = round(curCap - Number(latestPrev.current_usable_capacity), 2);
-          input.soh_change = round((curCap / origCap) * 100.0 - Number(latestPrev.soh), 2);
-          input.odometer_change = round(curOdo - Number(latestPrev.odometer), 2);
-          input.cycles_change = curCycles - Number(latestPrev.charging_cycles);
-          input.range_change = round(curRange - Number(latestPrev.average_range), 2);
-          input.age_change = round(curAge - Number(latestPrev.battery_age), 2);
+          input.usable_capacity_change = round(curCap - safeNum(latestPrev.current_usable_capacity, 0), 2);
+          input.soh_change = round((origCap > 0 ? (curCap / origCap) * 100.0 : 0) - safeNum(latestPrev.soh, 0), 2);
+          input.odometer_change = round(curOdo - safeNum(latestPrev.odometer, 0), 2);
+          input.cycles_change = curCycles - safeInt(latestPrev.charging_cycles, 0);
+          input.range_change = round(curRange - safeNum(latestPrev.average_range, 0), 2);
+          input.age_change = round(curAge - safeNum(latestPrev.battery_age, 0), 2);
         }
       } else {
         const vType = input.vehicleType || input.vehicle_type || 'car';
@@ -207,19 +374,19 @@ export class BatteryAnalysisService {
     }
 
     // Normalized input fields
-    const origCap = Number(input.originalCapacity ?? input.original_capacity);
-    const usableCap = Number(input.currentUsableCapacity ?? input.current_usable_capacity);
-    const batteryAge = Number(input.batteryAge ?? input.battery_age);
-    const odometer = Number(input.odometer);
-    const batteryPct = Number(input.currentBatteryPercentage ?? input.current_battery_percentage ?? 80);
-    const cycles = Number(input.chargingCycles ?? input.charging_cycles);
-    const avgTemp = Number(input.averageTemperature ?? input.average_temperature ?? 25);
-    const avgRange = Number(input.averageRange ?? input.average_range);
-    const normChg = Number(input.normalChargingPercentage ?? input.normal_charging_percentage ?? 80);
-    const fastChg = Number(input.fastChargingPercentage ?? input.fast_charging_percentage ?? 20);
+    const origCap = safeNum(input.originalCapacity ?? input.original_capacity, 0);
+    const usableCap = safeNum(input.currentUsableCapacity ?? input.current_usable_capacity, 0);
+    const batteryAge = safeNum(input.batteryAge ?? input.battery_age, 0);
+    const odometer = safeNum(input.odometer, 0);
+    const batteryPct = safeNum(input.currentBatteryPercentage ?? input.current_battery_percentage, 80);
+    const cycles = safeInt(input.chargingCycles ?? input.charging_cycles, 0);
+    const avgTemp = safeNum(input.averageTemperature ?? input.average_temperature, 25);
+    const avgRange = safeNum(input.averageRange ?? input.average_range, 0);
+    const normChg = safeNum(input.normalChargingPercentage ?? input.normal_charging_percentage, 80);
+    const fastChg = safeNum(input.fastChargingPercentage ?? input.fast_charging_percentage, 20);
 
     // 1. SoH
-    const rawSoh = (usableCap / origCap) * 100.0;
+    const rawSoh = origCap > 0 ? (usableCap / origCap) * 100.0 : 0;
     let soh = round(rawSoh, 2);
     soh = Math.min(100.0, Math.max(0.0, soh));
 
@@ -287,29 +454,29 @@ export class BatteryAnalysisService {
         vehicle.vehicle_type,
         vehicle.manufacturer,
         vehicle.model,
-        batteryAge,
-        odometer,
-        origCap,
-        usableCap,
-        batteryPct,
-        cycles,
-        avgTemp,
-        avgRange,
-        normChg,
-        fastChg,
-        soh,
-        capLoss,
+        safeNum(batteryAge, 0),
+        safeNum(odometer, 0),
+        safeNum(origCap, 0),
+        safeNum(usableCap, 0),
+        safeNum(batteryPct, 80),
+        safeInt(cycles, 0),
+        safeNum(avgTemp, 25),
+        safeNum(avgRange, 0),
+        safeNum(normChg, 80),
+        safeNum(fastChg, 20),
+        safeNum(soh, 0),
+        safeNum(capLoss, 0),
         condition,
-        confidence,
-        safetyScore,
+        safeNum(confidence, 100),
+        safeInt(safetyScore, 90),
         riskLevel,
         explanation,
-        input.soh_change ?? 0,
-        input.usable_capacity_change ?? 0,
-        input.odometer_change ?? 0,
-        input.cycles_change ?? 0,
-        input.range_change ?? 0,
-        input.age_change ?? 0
+        safeNum(input.soh_change, 0),
+        safeNum(input.usable_capacity_change, 0),
+        safeNum(input.odometer_change, 0),
+        safeInt(input.cycles_change, 0),
+        safeNum(input.range_change, 0),
+        safeNum(input.age_change, 0)
       ]
     );
 

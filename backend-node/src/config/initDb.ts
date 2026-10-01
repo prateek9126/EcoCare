@@ -326,6 +326,7 @@ export async function initDb(): Promise<void> {
       console.log('>>> PostgreSQL Database initialization complete.');
     } catch (err) {
       console.error('>>> Failed to initialize PostgreSQL database:', err);
+      initPromise = null;
       throw err;
     }
   })();
