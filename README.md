@@ -97,6 +97,23 @@ EcoCare/
 │   │   └── test/                        # Unit and integration tests
 │   └── pom.xml                          # Maven build configuration
 │
+├── backend-node/                        # Node.js / TypeScript Backend (Vercel Serverless & Standalone)
+│   ├── api/
+│   │   └── index.ts                     # Vercel Serverless Function entrypoint
+│   ├── src/
+│   │   ├── config/                      # PostgreSQL connection pool & automatic table DDL/seeding
+│   │   ├── controllers/                 # REST controllers (Auth, Battery, Company, EV, Marketplace)
+│   │   ├── data/                        # Static datasets (42+ EVs, 20 Charging Stations, Dealers)
+│   │   ├── routes/                      # Express route definitions
+│   │   ├── services/                    # Battery assessment engine & OEM analytics
+│   │   ├── types/                       # TypeScript interfaces
+│   │   ├── app.ts                       # Express application configuration
+│   │   └── server.ts                    # Local standalone server runner
+│   ├── .env                             # Environment configuration
+│   ├── .env.example                     # Environment template for deployments
+│   ├── vercel.json                      # Vercel deployment configuration
+│   └── package.json                     # Node.js dependencies
+│
 ├── frontend/                            # React + TypeScript + Vite Frontend
 │   ├── public/                          # Static assets, branding, and video clips
 │   ├── src/
@@ -141,7 +158,7 @@ Ensure you have installed:
 
 ---
 
-### 2. Backend Setup
+### 2. Backend Setup (Spring Boot)
 
 1. Open a terminal in the `backend/` directory:
    ```bash
@@ -153,6 +170,41 @@ Ensure you have installed:
    ```
 3. The backend server will start on **`http://localhost:8080`**.
    - Database tables and initial seed data for charging stations and vehicles will be populated automatically on first boot.
+
+---
+
+### 2b. Alternative Backend Setup (Node.js / Express / Vercel Serverless)
+
+If you prefer a lightweight Node.js runtime or want to deploy effortlessly to **Vercel**:
+
+1. Open a terminal in the `backend-node/` directory:
+   ```bash
+   cd backend-node
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Copy or edit `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+4. Start locally in dev mode:
+   ```bash
+   npm run dev
+   ```
+   Or run the compiled production build:
+   ```bash
+   npm run build
+   npm run start
+   ```
+   The Node.js backend starts on **`http://localhost:8080`** (or your custom `PORT`).
+
+5. **Deploy to Vercel**:
+   ```bash
+   vercel
+   ```
+   Add your `DATABASE_URL` (Neon, Supabase, Render, or Vercel Postgres) in the Vercel Project Environment Variables. `vercel.json` and `api/index.ts` route all serverless functions automatically.
 
 ---
 
